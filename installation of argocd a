@@ -1,0 +1,24 @@
+helm repo add argo https://argoproj.github.io/argo-helm
+helm repo update
+kubectl create namespace argocd
+helm install argocd argo/argo-cd -n argocd
+
+kubectl get pods -n argocd
+kubectl get svc -n argocd
+
+kubectl port-forward svc/argocd-server -n argocd 8080:443
+# Keep this running
+
+# Get admin password
+kubectl get secret argocd-initial-admin-secret -n argocd \
+  -o jsonpath="{.data.password}" | base64 -d && echo
+
+# CLI
+brew install argocd
+argocd version --client
+argocd login 127.0.0.1:8080 --username admin --password <initial_password> --insecure
+argocd account get-user-info
+
+# Add in-cluster kind cluster (works)
+argocd cluster add kind-argocd-cluster --in-cluster
+argocd cluster list
